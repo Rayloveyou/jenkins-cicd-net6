@@ -1,0 +1,30 @@
+variables:
+    DOCKER_IMAGE: ${REGISTRY_URL}/${REGISTRY_PROJECT}/${BACKEND_FOLDER}:production
+
+stages:
+    - build
+    - push_to_registry
+
+build:
+    stage: build
+    variables:
+        GIT_STRATERGY: clone
+    script:
+        - docker build -t ${DOCKER_IMAGE} .
+    tags:
+        - gitlab-runner-production
+    only: 
+        - tags
+
+push_to_registry:
+    stage: push_to_registry
+    variables:
+        GIT_STRATERGY: none
+    before_script:
+        - docker login ${REGISTRY_URL} -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD}
+    script:
+        - docker push ${DOCKER_IMAGE}
+    tags:
+        - gitlab-runner-production
+    only: 
+        - tags
